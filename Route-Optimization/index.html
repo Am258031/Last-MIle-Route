@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RouteGenius | Last-Mile Optimization Chatbot</title>
+    <style>
+      :root {
+        --primary-color: #4a6bff;
+        --secondary-color: #3a56d1;
+        --dark-color: #2a2a2a;
+        --light-color: #f8f9fa;
+        --success-color: #28a745;
+        --danger-color: #dc3545;
+        --warning-color: #fd7e14;
+        --info-color: #17a2b8;
+        --chatbot-bg: #f5f7ff;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f5f5f7;
+        color: var(--dark-color);
+        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      header {
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 5%;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .logo i {
+        font-size: 1.8rem;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+      }
+
+      .nav-links a {
+        color: var(--dark-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+
+      .nav-links a:hover {
+        color: var(--primary-color);
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--dark-color);
+      }
+
+      main {
+        flex: 1;
+        padding: 2rem 5%;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .hero {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--dark-color);
+      }
+
+      .hero p {
+        color: #666;
+        max-width: 700px;
+        margin: 0 auto 2rem;
+      }
+
+      .chatbot-container {
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+      }
+
+      .chatbot-header {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .chatbot-header i {
+        font-size: 1.5rem;
+      }
+
+      .chatbot-header h2 {
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      .chatbot-messages {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        background-color: var(--chatbot-bg);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .message {
+        max-width: 80%;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        line-height: 1.4;
+        position: relative;
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .bot-message {
+        align-self: flex-start;
+        background-color: white;
+        border-bottom-left-radius: 0.25rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-message {
+        align-self: flex-end;
+        background-color: var(--primary-color);
+        color: white;
+        border-bottom-right-radius: 0.25rem;
+      }
+
+      .message-time {
+        display: block;
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 0.3rem;
+      }
+
+      .bot-message .message-time {
+        text-align: left;
+      }
+
+      .user-message .message-time {
+        text-align: right;
+      }
+
+      .chatbot-input {
+        display: flex;
+        padding: 1rem;
+        background-color: white;
+        border-top: 1px solid #eee;
+      }
+
+      .chatbot-input input {
+        flex: 1;
+        padding: 0.8rem 1rem;
+        border: 1px solid #ddd;
+        border-radius: 2rem;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+      }
+
+      .chatbot-input input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      .chatbot-input button {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin-left: 0.75rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .chatbot-input button:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .map-container {
+        height: 400px;
+        margin-top: 2rem;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        display: none;
+      }
+
+      .map-container.active {
+        display: block;
+      }
+
+      #optimization-map {
+        height: 100%;
+        width: 100%;
+      }
+
+      .optimization-results {
+        margin-top: 2rem;
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        display: none;
+      }
+
+      .optimization-results.active {
+        display: block;
+      }
+
+      .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #eee;
+      }
+
+      .results-header h3 {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+      }
+
+      .results-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .stat-card {
+        background-color: var(--chatbot-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .stat-card h4 {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-card p {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--dark-color);
+      }
+
+      .route-stops {
+        margin-top: 1.5rem;
+      }
+
+      .route-stops h4 {
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+      }
+
+      .stop-list {
+        list-style: none;
+      }
+
+      .stop-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .stop-item:last-child {
+        border-bottom: none;
+      }
+
+      .stop-number {
+        background-color: var(--primary-color);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+      }
+
+      .stop-details {
+        flex: 1;
+      }
+
+      .stop-address {
+        font-weight: 500;
+      }
+
+      .stop-distance {
+        font-size: 0.8rem;
+        color: #666;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 1.5rem;
+        gap: 1rem;
+      }
+
+      .btn {
+        padding: 0.7rem 1.5rem;
+        border-radius: 5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background-color: var(--secondary-color);
+      }
+
+      .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      .btn-outline:hover {
+        background-color: rgba(74, 107, 255, 0.1);
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        margin: 1rem 0;
+      }
+
+      .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 4px solid var(--primary-color);
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      footer {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 3rem 5%;
+        margin-top: 3rem;
+      }
+
+      .footer-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+      }
+
+      .footer-column h3 {
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+        position: relative;
+        padding-bottom: 0.5rem;
+      }
+
+      .footer-column h3::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 40px;
+        height: 2px;
+        background-color: var(--primary-color);
+      }
+
+      .footer-column ul {
+        list-style: none;
+      }
+
+      .footer-column ul li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-column ul li a {
+        color: #bbb;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-column ul li a:hover {
+        color: white;
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .social-links a {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s;
+      }
+
+      .social-links a:hover {
+        background-color: var(--primary-color);
+      }
+
+      .copyright {
+        text-align: center;
+        padding-top: 2rem;
+        margin-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #bbb;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+          flex-direction: column;
+          position: absolute;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background-color: white;
+          padding: 1rem 5%;
+          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .mobile-menu-btn {
+          display: block;
+        }
+
+        .chatbot-container {
+          height: 500px;
+        }
+
+        .message {
+          max-width: 90%;
+        }
+
+        .results-stats {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Toast notification */
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--success-color);
+        color: white;
+        padding: 1rem;
+        border-radius: 5px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 1000;
+      }
+
+      .toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <a href="#" class="logo">
+          <i class="fas fa-route"></i>
+          <span>RouteGenius</span>
+        </a>
+        <div class="nav-links">
+          <a href="#">Home</a>
+          <a href="#features">Features</a>
+          <a href="#solutions">Solutions</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <button class="mobile-menu-btn">
+          <i class="fas fa-bars"></i>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Optimize Your Last-Mile Delivery Routes</h1>
+        <p>
+          Our AI-powered chatbot helps you find the most efficient routes,
+          reducing costs and improving delivery times.
+        </p>
+      </section>
+
+      <section class="chatbot-container">
+        <div class="chatbot-header">
+          <i class="fas fa-robot"></i>
+          <h2>Route Optimization Assistant</h2>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+          <div class="message bot-message">
+            Hello! I'm your Route Optimization Assistant. How can I help you
+            today?
+            <span class="message-time">Just now</span>
+          </div>
+          <div class="message bot-message">
+            You can ask me to:
+            <ul style="margin-top: 0.5rem; margin-left: 1.2rem">
+              <li>Optimize delivery routes</li>
+              <li>Calculate estimated delivery times</li>
+              <li>Find the most fuel-efficient path</li>
+              <li>Balance workload across drivers</li>
+            </ul>
+            <span class="message-time">Just now</span>
+          </div>
+        </div>
+        <div class="chatbot-input">
+          <input
+            type="text"
+            id="user-input"
+            placeholder="Type your message here..."
+          />
+          <button id="send-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </section>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Optimizing your route...</p>
+      </div>
+
+      <div class="map-container" id="map-container">
+        <div id="optimization-map"></div>
+      </div>
+
+      <div class="optimization-results" id="optimization-results">
+        <div class="results-header">
+          <h3>Optimized Route Results</h3>
+          <div>
+            <span style="font-weight: 500; color: var(--success-color)">
+              <i class="fas fa-check-circle"></i> Optimization successful
+            </span>
+          </div>
+        </div>
+
+        <div class="results-stats">
+          <div class="stat-card">
+            <h4>Total Distance</h4>
+            <p id="total-distance">24.5 km</p>
+          </div>
+          <div class="stat-card">
+            <h4>Estimated Time</h4>
+            <p id="estimated-time">48 min</p>
+          </div>
+          <div class="stat-card">
+            <h4>Fuel Savings</h4>
+            <p id="fuel-savings">18%</p>
+          </div>
+          <div class="stat-card">
+            <h4>Stops</h4>
+            <p id="total-stops">12</p>
+          </div>
+        </div>
+
+        <div class="route-stops">
+          <h4>Route Sequence</h4>
+          <ul class="stop-list" id="stop-list">
+            <!-- Stops will be added here dynamically -->
+          </ul>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-outline">
+            <i class="fas fa-edit"></i> Edit Route
+          </button>
+          <button class="btn btn-primary">
+            <i class="fas fa-file-export"></i> Export
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>RouteGenius</h3>
+          <p>
+            Advanced route optimization solutions for last-mile delivery
+            challenges.
+          </p>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-column">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#">Home</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#solutions">Solutions</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Industries</h3>
+          <ul>
+            <li><a href="#">E-commerce</a></li>
+            <li><a href="#">Logistics</a></li>
+            <li><a href="#">Food Delivery</a></li>
+            <li><a href="#">Retail</a></li>
+            <li><a href="#">Healthcare</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#">GDPR</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2023 RouteGenius. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+      // Mobile menu toggle
+      const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
+      const navLinks = document.querySelector(".nav-links");
+
+      mobileMenuBtn.addEventListener("click", () => {
+        navLinks.classList.toggle("active");
+      });
+
+      // Close mobile menu when clicking on a link
+      document.querySelectorAll(".nav-links a").forEach((link) => {
+        link.addEventListener("click", () => {
+          navLinks.classList.remove("active");
+        });
+      });
+
+      // Chatbot functionality
+      const userInput = document.getElementById("user-input");
+      const sendBtn = document.getElementById("send-btn");
+      const chatbotMessages = document.getElementById("chatbot-messages");
+      const loadingElement = document.getElementById("loading");
+      const mapContainer = document.getElementById("map-container");
+      const optimizationResults = document.getElementById(
+        "optimization-results"
+      );
+      const toast = document.getElementById("toast");
+
+      // Sample responses for the chatbot
+      const botResponses = {
+        hello:
+          "Hello! How can I assist you with your delivery route optimization today?",
+        "optimize route":
+          "Great! Please provide the addresses of your delivery locations, separated by commas or new lines.",
+        "delivery locations":
+          "Got it! For the best optimization, could you also specify any time windows or priority levels for these deliveries?",
+        "time windows":
+          "Thank you. I'll take those constraints into account. Would you like to optimize for shortest distance, fastest time, or fuel efficiency?",
+        "fuel efficiency":
+          "Excellent choice! I'll optimize for fuel efficiency. Would you like to add any vehicle-specific constraints (like capacity or type)?",
+        "no constraints":
+          "Understood. I'll proceed with the optimization using default parameters. Please wait while I calculate the most efficient route...",
+        default:
+          "I'm sorry, I didn't understand that. Could you rephrase or ask about route optimization, delivery times, or fuel efficiency?",
+      };
+
+      // Sample optimized route data
+      const sampleRoute = {
+        totalDistance: "24.5 km",
+        estimatedTime: "48 min",
+        fuelSavings: "18%",
+        totalStops: 12,
+        stops: [
+          { address: "123 Main St, Anytown", distance: "0 km" },
+          { address: "456 Oak Ave, Somewhere", distance: "2.3 km" },
+          { address: "789 Pine Rd, Nowhere", distance: "1.8 km" },
+          { address: "321 Elm Blvd, Anywhere", distance: "3.2 km" },
+          { address: "654 Maple Ln, Elsewhere", distance: "2.7 km" },
+          { address: "987 Cedar Dr, Someplace", distance: "1.5 km" },
+          { address: "135 Birch St, Noplace", distance: "3.8 km" },
+          { address: "246 Willow Way, Everywhere", distance: "2.1 km" },
+          { address: "369 Spruce Ave, Knowhere", distance: "4.2 km" },
+          { address: "482 Aspen Ct, Whoknows", distance: "1.9 km" },
+          { address: "515 Redwood Blvd, Whatever", distance: "2.5 km" },
+          { address: "628 Sequoia Dr, Nevermind", distance: "3.1 km" },
+        ],
+        routeCoordinates: [
+          [51.505, -0.09], // Start point
+          [51.51, -0.1], // Stop 1
+          [51.515, -0.12], // Stop 2
+          [51.52, -0.09], // Stop 3
+          [51.525, -0.1], // Stop 4
+          [51.53, -0.11], // Stop 5
+          [51.535, -0.08], // Stop 6
+          [51.54, -0.07], // Stop 7
+          [51.545, -0.06], // Stop 8
+          [51.55, -0.05], // Stop 9
+          [51.555, -0.04], // Stop 10
+          [51.56, -0.03], // End point
+        ],
+      };
+
+      // Initialize map (will be shown when route is optimized)
+      let map;
+      let routeLayer;
+
+      function initMap() {
+        map = L.map("optimization-map").setView([51.505, -0.09], 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
+      }
+
+      function showOptimizedRoute(routeData) {
+        // Update stats
+        document.getElementById("total-distance").textContent =
+          routeData.totalDistance;
+        document.getElementById("estimated-time").textContent =
+          routeData.estimatedTime;
+        document.getElementById("fuel-savings").textContent =
+          routeData.fuelSavings;
+        document.getElementById("total-stops").textContent =
+          routeData.totalStops;
+
+        // Update stops list
+        const stopList = document.getElementById("stop-list");
+        stopList.innerHTML = "";
+        routeData.stops.forEach((stop, index) => {
+          const stopItem = document.createElement("li");
+          stopItem.className = "stop-item";
+          stopItem.innerHTML = `
+                    <div class="stop-number">${index + 1}</div>
+                    <div class="stop-details">
+                        <div class="stop-address">${stop.address}</div>
+                        <div class="stop-distance">${
+                          stop.distance
+                        } from previous</div>
+                    </div>
+                `;
+          stopList.appendChild(stopItem);
+        });
+
+        // Draw route on map
+        if (routeLayer) {
+          map.removeLayer(routeLayer);
+        }
+
+        routeLayer = L.layerGroup().addTo(map);
+
+        // Add markers for each stop
+        routeData.routeCoordinates.forEach((coord, index) => {
+          const marker = L.marker(coord).addTo(routeLayer);
+          marker.bindPopup(
+            `<b>Stop ${index + 1}</b><br>${
+              routeData.stops[index]?.address || "Delivery location"
+            }`
+          );
+        });
+
+        // Add polyline for the route
+        const polyline = L.polyline(routeData.routeCoordinates, {
+          color: "blue",
+        }).addTo(routeLayer);
+
+        // Fit map to show the entire route
+        map.fitBounds(polyline.getBounds());
+
+        // Show the map and results
+        mapContainer.classList.add("active");
+        optimizationResults.classList.add("active");
+      }
+
+      function addMessage(message, isUser = false) {
+        const messageElement = document.createElement("div");
+        messageElement.className = `message ${
+          isUser ? "user-message" : "bot-message"
+        }`;
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+        messageElement.innerHTML = `${message}<span class="message-time">${timeString}</span>`;
+        chatbotMessages.appendChild(messageElement);
+
+        // Scroll to bottom
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+      }
+
+      function processUserInput(input) {
+        const lowerInput = input.toLowerCase();
+        let response = botResponses.default;
+
+        // Check for keywords in the input
+        if (lowerInput.includes("hello") || lowerInput.includes("hi")) {
+          response = botResponses["hello"];
+        } else if (
+          lowerInput.includes("optimize") ||
+          lowerInput.includes("route")
+        ) {
+          response = botResponses["optimize route"];
+        } else if (
+          lowerInput.includes("location") ||
+          lowerInput.includes("address")
+        ) {
+          response = botResponses["delivery locations"];
+        } else if (
+          lowerInput.includes("time") ||
+          lowerInput.includes("window")
+        ) {
+          response = botResponses["time windows"];
+        } else if (
+          lowerInput.includes("fuel") ||
+          lowerInput.includes("efficiency")
+        ) {
+          response = botResponses["fuel efficiency"];
+        } else if (
+          lowerInput.includes("no constraint") ||
+          lowerInput.includes("default")
+        ) {
+          response = botResponses["no constraints"];
+
+          // Simulate route optimization
+          setTimeout(() => {
+            loadingElement.style.display = "none";
+            showOptimizedRoute(sampleRoute);
+            addMessage("I've optimized your route! Here are the results:");
+            showToast("Route optimized successfully!");
+          }, 3000);
+
+          loadingElement.style.display = "block";
+        }
+
+        return response;
+      }
+
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      // Event listeners
+      sendBtn.addEventListener("click", () => {
+        const message = userInput.value.trim();
+        if (message) {
+          addMessage(message, true);
+          userInput.value = "";
+
+          setTimeout(() => {
+            const response = processUserInput(message);
+            addMessage(response);
+          }, 1000);
+        }
+      });
+
+      userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          sendBtn.click();
+        }
+      });
+
+      // Initialize the app
+      initMap();
+      addMessage(
+        "Try saying: 'I need to optimize a delivery route with 12 stops'"
+      );
+    </script>
+  </body>
+</html>
